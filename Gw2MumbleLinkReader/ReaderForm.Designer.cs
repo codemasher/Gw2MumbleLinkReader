@@ -1,4 +1,4 @@
-namespace MumbleLinkReader
+namespace Gw2MumbleLinkReader
 {
     partial class ReaderForm
     {

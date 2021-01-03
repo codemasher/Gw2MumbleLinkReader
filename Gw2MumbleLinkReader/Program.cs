@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace MumbleLinkReader
+namespace Gw2MumbleLinkReader
 {
     internal static class Program
     {

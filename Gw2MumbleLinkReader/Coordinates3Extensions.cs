@@ -1,7 +1,7 @@
 using Gw2Sharp.Models;
 using Gw2Sharp.WebApi.V2.Models;
 
-namespace MumbleLinkReader
+namespace Gw2MumbleLinkReader
 {
     internal static class Coordinates3Extensions
     {
