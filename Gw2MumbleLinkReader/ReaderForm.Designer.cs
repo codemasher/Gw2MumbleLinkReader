@@ -1085,7 +1085,7 @@ namespace Gw2MumbleLinkReader
             this.Controls.Add(this.textBoxVersion);
             this.Controls.Add(this.labelVersion);
             this.Controls.Add(this.labelStatus);
-            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.Font = new System.Drawing.Font("Segoe UI", 8.25F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "ReaderForm";
@@ -1094,7 +1094,6 @@ namespace Gw2MumbleLinkReader
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
