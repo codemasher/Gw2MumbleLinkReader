@@ -152,7 +152,7 @@ namespace Gw2MumbleLinkReader
                             this.textBoxFieldOfView.Text = m.FieldOfView.ToString();
                             this.textBoxUiSize.Text = m.UiSize.ToString();
 
-                            this.textBoxServerAddress.Text = $"{m.ServerAddress}:{m.ServerPort}";
+                            this.textBoxServerAddress.Text = $@"{m.ServerAddress}:{m.ServerPort}";
                             this.textBoxMapId.Text = m.MapId.ToString();
                             this.textBoxMapType.Text = m.MapType.ToString();
                             this.textBoxShardId.Text = m.ShardId.ToString();
@@ -231,7 +231,6 @@ namespace Gw2MumbleLinkReader
                                 if (closestWaypoint is not null)
                                 {
                                     this.textBoxWaypoint.Text = closestWaypoint.Name;
-                                    int poiId = closestWaypoint.Id;
                                     this.textBoxWaypointLink.Text = closestWaypoint.ChatLink;
                                     this.textBoxWaypointContinentDistance.Text = closestWaypointDistance.ToString();
                                     this.textBoxWaypointContinentPosition1.Text = closestWaypoint.Coord.X.ToString();
@@ -254,7 +253,6 @@ namespace Gw2MumbleLinkReader
                                 if (closestPoi is not null)
                                 {
                                     this.textBoxPoi.Text = closestPoi.Name;
-                                    int poiId = closestPoi.Id;
                                     this.textBoxPoiLink.Text = closestPoi.ChatLink;
                                     this.textBoxPoiContinentDistance.Text = closestPoiDistance.ToString();
                                     this.textBoxPoiContinentPosition1.Text = closestPoi.Coord.X.ToString();
