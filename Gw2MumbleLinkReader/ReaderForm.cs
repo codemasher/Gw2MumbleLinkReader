@@ -86,12 +86,12 @@ namespace Gw2MumbleLinkReader
 
                 foreach (int floorId in map.Floors)
                 {
-                    if (!this.floors.ContainsKey((map.ContinentId, floorId)))
-                    {
-                        this.UpdateStatus($"Downloading API information for floor {floorId} on continent {map.ContinentId}");
-                        var floor = await this.client.WebApi.V2.Continents[map.ContinentId].Floors.GetAsync(floorId).ConfigureAwait(false);
-                        this.floors[(map.ContinentId, floorId)] = floor;
-                    }
+                    if (this.floors.ContainsKey((map.ContinentId, floorId)))
+                        continue;
+
+                    this.UpdateStatus($"Downloading API information for floor {floorId} on continent {map.ContinentId}");
+                    var floor = await this.client.WebApi.V2.Continents[map.ContinentId].Floors.GetAsync(floorId).ConfigureAwait(false);
+                    this.floors[(map.ContinentId, floorId)] = floor;
                 }
 
                 this.apiMapDownloadBusy.Remove(mapId);
@@ -177,101 +177,101 @@ namespace Gw2MumbleLinkReader
                             this.textBoxProcessId.Text = m.ProcessId.ToString();
                             this.textBoxMount.Text = m.Mount.ToString();
 
-                            if (this.maps.TryGetValue(m.MapId, out var map))
+                            if (!this.maps.TryGetValue(m.MapId, out var map))
+                                return;
+
+                            this.textBoxMapName.Text = map.Name;
+
+                            var mapPosition = m.AvatarPosition.ToMapCoords(CoordsUnit.Mumble);
+                            this.textBoxMapPosition1.Text = NumberFormat(mapPosition.X, "F3");
+                            this.textBoxMapPosition2.Text = NumberFormat(mapPosition.Y, "F3");
+                            this.textBoxMapPosition3.Text = NumberFormat(mapPosition.Z, "F3");
+
+                            var continentPosition = m.AvatarPosition.ToContinentCoords(CoordsUnit.Mumble, map.MapRect, map.ContinentRect);
+                            this.textBoxContinentPosition1.Text = NumberFormat(continentPosition.X, "F0");
+                            this.textBoxContinentPosition2.Text = NumberFormat(continentPosition.Y, "F0");
+                            this.textBoxContinentPosition3.Text = NumberFormat(continentPosition.Z, "F0");
+
+                            ContinentFloorRegionMapPoi? closestWaypoint = null;
+                            Coordinates2 closestWaypointPosition = default;
+                            double closestWaypointDistance = double.MaxValue;
+                            ContinentFloorRegionMapPoi? closestPoi = null;
+                            Coordinates2 closestPoiPosition = default;
+                            double closestPoiDistance = double.MaxValue;
+                            foreach (int floorId in map.Floors)
                             {
-                                this.textBoxMapName.Text = map.Name;
+                                if (!this.floors.TryGetValue((map.ContinentId, floorId), out var floor))
+                                    continue;
 
-                                var mapPosition = m.AvatarPosition.ToMapCoords(CoordsUnit.Mumble);
-                                this.textBoxMapPosition1.Text = NumberFormat(mapPosition.X, "F3");
-                                this.textBoxMapPosition2.Text = NumberFormat(mapPosition.Y, "F3");
-                                this.textBoxMapPosition3.Text = NumberFormat(mapPosition.Z, "F3");
+                                if (!floor.Regions.TryGetValue(map.RegionId, out var floorRegion))
+                                    continue;
 
-                                var continentPosition = m.AvatarPosition.ToContinentCoords(CoordsUnit.Mumble, map.MapRect, map.ContinentRect);
-                                this.textBoxContinentPosition1.Text = NumberFormat(continentPosition.X, "F0");
-                                this.textBoxContinentPosition2.Text = NumberFormat(continentPosition.Y, "F0");
-                                this.textBoxContinentPosition3.Text = NumberFormat(continentPosition.Z, "F0");
+                                if (!floorRegion.Maps.TryGetValue(map.Id, out var floorMap))
+                                    continue;
 
-                                ContinentFloorRegionMapPoi? closestWaypoint = null;
-                                Coordinates2 closestWaypointPosition = default;
-                                double closestWaypointDistance = double.MaxValue;
-                                ContinentFloorRegionMapPoi? closestPoi = null;
-                                Coordinates2 closestPoiPosition = default;
-                                double closestPoiDistance = double.MaxValue;
-                                foreach (int floorId in map.Floors)
+                                foreach (var (_, poi) in floorMap.PointsOfInterest)
                                 {
-                                    if (!this.floors.TryGetValue((map.ContinentId, floorId), out var floor))
-                                        continue;
-
-                                    if (!floor.Regions.TryGetValue(map.RegionId, out var floorRegion))
-                                        continue;
-
-                                    if (!floorRegion.Maps.TryGetValue(map.Id, out var floorMap))
-                                        continue;
-
-                                    foreach (var (_, poi) in floorMap.PointsOfInterest)
+                                    double distanceX = Math.Abs(continentPosition.X - poi.Coord.X);
+                                    double distanceZ = Math.Abs(continentPosition.Z - poi.Coord.Y);
+                                    double distance = Math.Sqrt(Math.Pow(distanceX, 2) + Math.Pow(distanceZ, 2));
+                                    switch (poi.Type.Value)
                                     {
-                                        double distanceX = Math.Abs(continentPosition.X - poi.Coord.X);
-                                        double distanceZ = Math.Abs(continentPosition.Z - poi.Coord.Y);
-                                        double distance = Math.Sqrt(Math.Pow(distanceX, 2) + Math.Pow(distanceZ, 2));
-                                        switch (poi.Type.Value)
-                                        {
-                                            case PoiType.Waypoint when distance < closestWaypointDistance:
-                                                closestWaypointPosition = poi.Coord;
-                                                closestWaypointDistance = distance;
-                                                closestWaypoint = poi;
-                                                break;
-                                            case PoiType.Landmark when distance < closestPoiDistance:
-                                                closestPoiPosition = poi.Coord;
-                                                closestPoiDistance = distance;
-                                                closestPoi = poi;
-                                                break;
-                                        }
+                                        case PoiType.Waypoint when distance < closestWaypointDistance:
+                                            closestWaypointPosition = poi.Coord;
+                                            closestWaypointDistance = distance;
+                                            closestWaypoint = poi;
+                                            break;
+                                        case PoiType.Landmark when distance < closestPoiDistance:
+                                            closestPoiPosition = poi.Coord;
+                                            closestPoiDistance = distance;
+                                            closestPoi = poi;
+                                            break;
                                     }
                                 }
+                            }
 
-                                if (closestWaypoint is not null)
-                                {
-                                    this.textBoxWaypoint.Text = closestWaypoint.Name;
-                                    this.textBoxWaypointLink.Text = closestWaypoint.ChatLink;
-                                    this.textBoxWaypointContinentDistance.Text = NumberFormat(closestWaypointDistance, "F3");
-                                    this.textBoxWaypointContinentPosition1.Text = NumberFormat(closestWaypoint.Coord.X, "F0");
-                                    this.textBoxWaypointContinentPosition2.Text = NumberFormat(closestWaypoint.Coord.Y, "F0");
-                                    double angle = GetAngle(continentPosition, closestWaypointPosition);
-                                    this.textBoxWaypointDirection1.Text = GetDirectionFromAngle(angle).ToString();
-                                    this.textBoxWaypointDirection2.Text = NumberFormat(angle, "F0");
-                                }
-                                else
-                                {
-                                    this.textBoxWaypoint.Text = string.Empty;
-                                    this.textBoxWaypointLink.Text = string.Empty;
-                                    this.textBoxWaypointContinentDistance.Text = string.Empty;
-                                    this.textBoxWaypointContinentPosition1.Text = string.Empty;
-                                    this.textBoxWaypointContinentPosition2.Text = string.Empty;
-                                    this.textBoxWaypointDirection1.Text = string.Empty;
-                                    this.textBoxWaypointDirection2.Text = string.Empty;
-                                }
+                            if (closestWaypoint is not null)
+                            {
+                                this.textBoxWaypoint.Text = closestWaypoint.Name;
+                                this.textBoxWaypointLink.Text = closestWaypoint.ChatLink;
+                                this.textBoxWaypointContinentDistance.Text = NumberFormat(closestWaypointDistance, "F3");
+                                this.textBoxWaypointContinentPosition1.Text = NumberFormat(closestWaypoint.Coord.X, "F0");
+                                this.textBoxWaypointContinentPosition2.Text = NumberFormat(closestWaypoint.Coord.Y, "F0");
+                                double angle = GetAngle(continentPosition, closestWaypointPosition);
+                                this.textBoxWaypointDirection1.Text = GetDirectionFromAngle(angle).ToString();
+                                this.textBoxWaypointDirection2.Text = NumberFormat(angle, "F0");
+                            }
+                            else
+                            {
+                                this.textBoxWaypoint.Text = string.Empty;
+                                this.textBoxWaypointLink.Text = string.Empty;
+                                this.textBoxWaypointContinentDistance.Text = string.Empty;
+                                this.textBoxWaypointContinentPosition1.Text = string.Empty;
+                                this.textBoxWaypointContinentPosition2.Text = string.Empty;
+                                this.textBoxWaypointDirection1.Text = string.Empty;
+                                this.textBoxWaypointDirection2.Text = string.Empty;
+                            }
 
-                                if (closestPoi is not null)
-                                {
-                                    this.textBoxPoi.Text = closestPoi.Name;
-                                    this.textBoxPoiLink.Text = closestPoi.ChatLink;
-                                    this.textBoxPoiContinentDistance.Text = NumberFormat(closestPoiDistance, "F3");
-                                    this.textBoxPoiContinentPosition1.Text = NumberFormat(closestPoi.Coord.X, "F0");
-                                    this.textBoxPoiContinentPosition2.Text = NumberFormat(closestPoi.Coord.Y, "F0");
-                                    double angle = GetAngle(continentPosition, closestPoiPosition);
-                                    this.textBoxPoiDirection1.Text = GetDirectionFromAngle(angle).ToString();
-                                    this.textBoxPoiDirection2.Text = NumberFormat(angle, "F0");
-                                }
-                                else
-                                {
-                                    this.textBoxPoi.Text = string.Empty;
-                                    this.textBoxPoiLink.Text = string.Empty;
-                                    this.textBoxPoiContinentDistance.Text = string.Empty;
-                                    this.textBoxPoiContinentPosition1.Text = string.Empty;
-                                    this.textBoxPoiContinentPosition2.Text = string.Empty;
-                                    this.textBoxPoiDirection1.Text = string.Empty;
-                                    this.textBoxPoiDirection2.Text = string.Empty;
-                                }
+                            if (closestPoi is not null)
+                            {
+                                this.textBoxPoi.Text = closestPoi.Name;
+                                this.textBoxPoiLink.Text = closestPoi.ChatLink;
+                                this.textBoxPoiContinentDistance.Text = NumberFormat(closestPoiDistance, "F3");
+                                this.textBoxPoiContinentPosition1.Text = NumberFormat(closestPoi.Coord.X, "F0");
+                                this.textBoxPoiContinentPosition2.Text = NumberFormat(closestPoi.Coord.Y, "F0");
+                                double angle = GetAngle(continentPosition, closestPoiPosition);
+                                this.textBoxPoiDirection1.Text = GetDirectionFromAngle(angle).ToString();
+                                this.textBoxPoiDirection2.Text = NumberFormat(angle, "F0");
+                            }
+                            else
+                            {
+                                this.textBoxPoi.Text = string.Empty;
+                                this.textBoxPoiLink.Text = string.Empty;
+                                this.textBoxPoiContinentDistance.Text = string.Empty;
+                                this.textBoxPoiContinentPosition1.Text = string.Empty;
+                                this.textBoxPoiContinentPosition2.Text = string.Empty;
+                                this.textBoxPoiDirection1.Text = string.Empty;
+                                this.textBoxPoiDirection2.Text = string.Empty;
                             }
                         }), this.client.Mumble);
                     }
