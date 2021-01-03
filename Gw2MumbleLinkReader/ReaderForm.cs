@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Windows.Forms;
 using Gw2Sharp;
@@ -129,19 +130,19 @@ namespace Gw2MumbleLinkReader
                         {
                             this.textBoxVersion.Text = m.Version.ToString();
                             this.textBoxTick.Text = m.Tick.ToString();
-                            this.textBoxAvatarPosition1.Text = m.AvatarPosition.X.ToString();
-                            this.textBoxAvatarPosition2.Text = m.AvatarPosition.Y.ToString();
-                            this.textBoxAvatarPosition3.Text = m.AvatarPosition.Z.ToString();
-                            this.textBoxAvatarFront1.Text = m.AvatarFront.X.ToString();
-                            this.textBoxAvatarFront2.Text = m.AvatarFront.Y.ToString();
-                            this.textBoxAvatarFront3.Text = m.AvatarFront.Z.ToString();
+                            this.textBoxAvatarPosition1.Text = NumberFormat(m.AvatarPosition.X, "F3");
+                            this.textBoxAvatarPosition2.Text = NumberFormat(m.AvatarPosition.Y, "F3");
+                            this.textBoxAvatarPosition3.Text = NumberFormat(m.AvatarPosition.Z, "F3");
+                            this.textBoxAvatarFront1.Text = NumberFormat(m.AvatarFront.X, "F3");
+                            this.textBoxAvatarFront2.Text = NumberFormat(m.AvatarFront.Y, "F3");
+                            this.textBoxAvatarFront3.Text = NumberFormat(m.AvatarFront.Z, "F3");
                             this.textBoxName.Text = m.Name;
-                            this.textBoxCameraPosition1.Text = m.CameraPosition.X.ToString();
-                            this.textBoxCameraPosition2.Text = m.CameraPosition.Y.ToString();
-                            this.textBoxCameraPosition3.Text = m.CameraPosition.Z.ToString();
-                            this.textBoxCameraFront1.Text = m.CameraFront.X.ToString();
-                            this.textBoxCameraFront2.Text = m.CameraFront.Y.ToString();
-                            this.textBoxCameraFront3.Text = m.CameraFront.Z.ToString();
+                            this.textBoxCameraPosition1.Text = NumberFormat(m.CameraPosition.X, "F3");
+                            this.textBoxCameraPosition2.Text = NumberFormat(m.CameraPosition.Y, "F3");
+                            this.textBoxCameraPosition3.Text = NumberFormat(m.CameraPosition.Z, "F3");
+                            this.textBoxCameraFront1.Text = NumberFormat(m.CameraFront.X, "F3");
+                            this.textBoxCameraFront2.Text = NumberFormat(m.CameraFront.Y, "F3");
+                            this.textBoxCameraFront3.Text = NumberFormat(m.CameraFront.Z, "F3");
 
                             this.textBoxRawIdentity.Text = m.RawIdentity;
                             this.textBoxCharacterName.Text = m.CharacterName;
@@ -149,7 +150,7 @@ namespace Gw2MumbleLinkReader
                             this.textBoxSpecialization.Text = m.Specialization.ToString();
                             this.textBoxTeamColorId.Text = m.TeamColorId.ToString();
                             this.checkBoxCommander.Checked = m.IsCommander;
-                            this.textBoxFieldOfView.Text = m.FieldOfView.ToString();
+                            this.textBoxFieldOfView.Text = NumberFormat(m.FieldOfView, "F3");
                             this.textBoxUiSize.Text = m.UiSize.ToString();
 
                             this.textBoxServerAddress.Text = $@"{m.ServerAddress}:{m.ServerPort}";
@@ -167,12 +168,12 @@ namespace Gw2MumbleLinkReader
                             this.checkBoxUiStateInCombat.Checked = m.IsInCombat;
                             this.textBoxCompassWidth.Text = m.Compass.Width.ToString();
                             this.textBoxCompassHeight.Text = m.Compass.Height.ToString();
-                            this.textBoxCompassRotation.Text = m.CompassRotation.ToString();
-                            this.textBoxPlayerCoordsX.Text = m.PlayerLocationMap.X.ToString();
-                            this.textBoxPlayerCoordsY.Text = m.PlayerLocationMap.Y.ToString();
-                            this.textBoxMapCenterX.Text = m.MapCenter.X.ToString();
-                            this.textBoxMapCenterY.Text = m.MapCenter.Y.ToString();
-                            this.textBoxMapScale.Text = m.MapScale.ToString();
+                            this.textBoxCompassRotation.Text = NumberFormat(m.CompassRotation, "F0");
+                            this.textBoxPlayerCoordsX.Text = NumberFormat(m.PlayerLocationMap.X, "F0");
+                            this.textBoxPlayerCoordsY.Text = NumberFormat(m.PlayerLocationMap.Y, "F0");
+                            this.textBoxMapCenterX.Text = NumberFormat(m.MapCenter.X, "F0");
+                            this.textBoxMapCenterY.Text = NumberFormat(m.MapCenter.Y, "F0");
+                            this.textBoxMapScale.Text = NumberFormat(m.MapScale, "F3");
                             this.textBoxProcessId.Text = m.ProcessId.ToString();
                             this.textBoxMount.Text = m.Mount.ToString();
 
@@ -181,14 +182,14 @@ namespace Gw2MumbleLinkReader
                                 this.textBoxMapName.Text = map.Name;
 
                                 var mapPosition = m.AvatarPosition.ToMapCoords(CoordsUnit.Mumble);
-                                this.textBoxMapPosition1.Text = mapPosition.X.ToString();
-                                this.textBoxMapPosition2.Text = mapPosition.Y.ToString();
-                                this.textBoxMapPosition3.Text = mapPosition.Z.ToString();
+                                this.textBoxMapPosition1.Text = NumberFormat(mapPosition.X, "F3");
+                                this.textBoxMapPosition2.Text = NumberFormat(mapPosition.Y, "F3");
+                                this.textBoxMapPosition3.Text = NumberFormat(mapPosition.Z, "F3");
 
                                 var continentPosition = m.AvatarPosition.ToContinentCoords(CoordsUnit.Mumble, map.MapRect, map.ContinentRect);
-                                this.textBoxContinentPosition1.Text = continentPosition.X.ToString();
-                                this.textBoxContinentPosition2.Text = continentPosition.Y.ToString();
-                                this.textBoxContinentPosition3.Text = continentPosition.Z.ToString();
+                                this.textBoxContinentPosition1.Text = NumberFormat(continentPosition.X, "F0");
+                                this.textBoxContinentPosition2.Text = NumberFormat(continentPosition.Y, "F0");
+                                this.textBoxContinentPosition3.Text = NumberFormat(continentPosition.Z, "F0");
 
                                 ContinentFloorRegionMapPoi? closestWaypoint = null;
                                 Coordinates2 closestWaypointPosition = default;
@@ -232,12 +233,12 @@ namespace Gw2MumbleLinkReader
                                 {
                                     this.textBoxWaypoint.Text = closestWaypoint.Name;
                                     this.textBoxWaypointLink.Text = closestWaypoint.ChatLink;
-                                    this.textBoxWaypointContinentDistance.Text = closestWaypointDistance.ToString();
-                                    this.textBoxWaypointContinentPosition1.Text = closestWaypoint.Coord.X.ToString();
-                                    this.textBoxWaypointContinentPosition2.Text = closestWaypoint.Coord.Y.ToString();
-                                    double angle = Math.Atan2(continentPosition.Z - closestWaypointPosition.Y, continentPosition.X - closestWaypointPosition.X) * 180 / Math.PI;
+                                    this.textBoxWaypointContinentDistance.Text = NumberFormat(closestWaypointDistance, "F3");
+                                    this.textBoxWaypointContinentPosition1.Text = NumberFormat(closestWaypoint.Coord.X, "F0");
+                                    this.textBoxWaypointContinentPosition2.Text = NumberFormat(closestWaypoint.Coord.Y, "F0");
+                                    double angle = GetAngle(continentPosition, closestWaypointPosition);
                                     this.textBoxWaypointDirection1.Text = GetDirectionFromAngle(angle).ToString();
-                                    this.textBoxWaypointDirection2.Text = angle.ToString();
+                                    this.textBoxWaypointDirection2.Text = NumberFormat(angle, "F0");
                                 }
                                 else
                                 {
@@ -254,12 +255,12 @@ namespace Gw2MumbleLinkReader
                                 {
                                     this.textBoxPoi.Text = closestPoi.Name;
                                     this.textBoxPoiLink.Text = closestPoi.ChatLink;
-                                    this.textBoxPoiContinentDistance.Text = closestPoiDistance.ToString();
-                                    this.textBoxPoiContinentPosition1.Text = closestPoi.Coord.X.ToString();
-                                    this.textBoxPoiContinentPosition2.Text = closestPoi.Coord.Y.ToString();
-                                    double angle = Math.Atan2(continentPosition.Z - closestPoiPosition.Y, continentPosition.X - closestPoiPosition.X) * 180 / Math.PI;
+                                    this.textBoxPoiContinentDistance.Text = NumberFormat(closestPoiDistance, "F3");
+                                    this.textBoxPoiContinentPosition1.Text = NumberFormat(closestPoi.Coord.X, "F0");
+                                    this.textBoxPoiContinentPosition2.Text = NumberFormat(closestPoi.Coord.Y, "F0");
+                                    double angle = GetAngle(continentPosition, closestPoiPosition);
                                     this.textBoxPoiDirection1.Text = GetDirectionFromAngle(angle).ToString();
-                                    this.textBoxPoiDirection2.Text = angle.ToString();
+                                    this.textBoxPoiDirection2.Text = NumberFormat(angle, "F0");
                                 }
                                 else
                                 {
@@ -284,6 +285,10 @@ namespace Gw2MumbleLinkReader
                 Thread.Sleep(1000 / 60);
             } while (!this.stopRequested);
         }
+
+        private static string NumberFormat(double val, string fmt) => val.ToString(fmt, CultureInfo.InvariantCulture);
+
+        private static double GetAngle(Coordinates3 pos1, Coordinates2 pos2) => Math.Atan2(pos1.Z - pos2.Y, pos1.X - pos2.X) * 180 / Math.PI;
 
         private static Direction GetDirectionFromAngle(double angle) => angle switch
         {
