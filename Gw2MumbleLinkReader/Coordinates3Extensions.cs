@@ -7,14 +7,15 @@ namespace Gw2MumbleLinkReader
     {
         private const float INCH_TO_METER = 0.0254F;
 
-        public static Coordinates3 ToUnit(this Coordinates3 coords, CoordsUnit fromUnit, CoordsUnit toUnit)
-        {
-            if (fromUnit == CoordsUnit.Meters && toUnit == CoordsUnit.Inches)
-                return new Coordinates3(coords.X / INCH_TO_METER, coords.Y / INCH_TO_METER, coords.Z / INCH_TO_METER);
-            else if (fromUnit == CoordsUnit.Inches && toUnit == CoordsUnit.Meters)
-                return new Coordinates3(coords.X * INCH_TO_METER, coords.Y * INCH_TO_METER, coords.Z * INCH_TO_METER);
-            return coords;
-        }
+        private static Coordinates3 ToUnit(this Coordinates3 coords, CoordsUnit fromUnit, CoordsUnit toUnit) =>
+            fromUnit switch
+            {
+                CoordsUnit.Meters when toUnit == CoordsUnit.Inches => new Coordinates3(coords.X / INCH_TO_METER,
+                    coords.Y / INCH_TO_METER, coords.Z / INCH_TO_METER),
+                CoordsUnit.Inches when toUnit == CoordsUnit.Meters => new Coordinates3(coords.X * INCH_TO_METER,
+                    coords.Y * INCH_TO_METER, coords.Z * INCH_TO_METER),
+                _ => coords
+            };
 
         public static Coordinates3 ToMapCoords(this Coordinates3 coords, CoordsUnit fromUnit)
         {

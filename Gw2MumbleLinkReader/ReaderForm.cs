@@ -48,8 +48,7 @@ namespace Gw2MumbleLinkReader
             this.apiMapDownloadEvent.Set();
         }
 
-        private void UpdateStatus(string? message, TimeSpan? timeToShow = default)
-        {
+        private void UpdateStatus(string? message, TimeSpan? timeToShow = default) =>
             this.labelStatus.Invoke(new Action<string>(m =>
             {
                 this.labelStatus.Text = m;
@@ -65,7 +64,6 @@ namespace Gw2MumbleLinkReader
                     this.mClearStatusTimer.Enabled = false;
                 }
             }), message);
-        }
 
         private void ClearStatus(object? sender, EventArgs e) =>
             this.UpdateStatus(null);
