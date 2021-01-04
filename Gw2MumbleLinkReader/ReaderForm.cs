@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Gw2Sharp;
 using Gw2Sharp.Models;
 using Gw2Sharp.Mumble;
+using Gw2Sharp.WebApi.V2;
 using Gw2Sharp.WebApi.V2.Models;
 
 namespace Gw2MumbleLinkReader
@@ -22,7 +23,7 @@ namespace Gw2MumbleLinkReader
         private readonly Queue<int> apiMapDownloadQueue = new();
         private readonly HashSet<int> apiMapDownloadBusy = new();
         private readonly ConcurrentDictionary<int, Map> maps = new();
-        private readonly ConcurrentDictionary<(int, int), ContinentFloor> floors = new();
+        private readonly ConcurrentDictionary<(int, int), IApiV2ObjectList<ContinentFloorRegionMapPoi>> pois = new();
         private readonly AutoResetEvent apiMapDownloadEvent = new(false);
 
         private readonly System.Windows.Forms.Timer mClearStatusTimer = new();
@@ -86,12 +87,12 @@ namespace Gw2MumbleLinkReader
 
                 foreach (int floorId in map.Floors)
                 {
-                    if (this.floors.ContainsKey((map.ContinentId, floorId)))
+                    if (this.pois.ContainsKey((floorId, mapId)))
                         continue;
 
                     this.UpdateStatus($"Downloading API information for floor {floorId} on continent {map.ContinentId}");
-                    var floor = await this.client.WebApi.V2.Continents[map.ContinentId].Floors.GetAsync(floorId).ConfigureAwait(false);
-                    this.floors[(map.ContinentId, floorId)] = floor;
+                    var poi = await this.client.WebApi.V2.Continents[map.ContinentId].Floors[floorId].Regions[map.RegionId].Maps[mapId].Pois.AllAsync().ConfigureAwait(false);
+                    this.pois[(floorId, mapId)] = poi;
                 }
 
                 this.apiMapDownloadBusy.Remove(mapId);
@@ -200,16 +201,10 @@ namespace Gw2MumbleLinkReader
                             double closestPoiDistance = double.MaxValue;
                             foreach (int floorId in map.Floors)
                             {
-                                if (!this.floors.TryGetValue((map.ContinentId, floorId), out var floor))
+                                if (!this.pois.TryGetValue((floorId, map.Id), out var mapPois))
                                     continue;
 
-                                if (!floor.Regions.TryGetValue(map.RegionId, out var floorRegion))
-                                    continue;
-
-                                if (!floorRegion.Maps.TryGetValue(map.Id, out var floorMap))
-                                    continue;
-
-                                foreach (var (_, poi) in floorMap.PointsOfInterest)
+                                foreach (ContinentFloorRegionMapPoi poi in mapPois)
                                 {
                                     double distanceX = Math.Abs(continentPosition.X - poi.Coord.X);
                                     double distanceZ = Math.Abs(continentPosition.Z - poi.Coord.Y);
