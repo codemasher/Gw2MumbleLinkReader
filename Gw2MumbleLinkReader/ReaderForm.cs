@@ -90,9 +90,8 @@ namespace Gw2MumbleLinkReader
                     if (this.pois.ContainsKey((floorId, mapId)))
                         continue;
 
-                    this.UpdateStatus($"Downloading API information for floor {floorId} on continent {map.ContinentId}");
-                    var poi = await this.client.WebApi.V2.Continents[map.ContinentId].Floors[floorId].Regions[map.RegionId].Maps[mapId].Pois.AllAsync().ConfigureAwait(false);
-                    this.pois[(floorId, mapId)] = poi;
+                    this.UpdateStatus($"Downloading API information for map {mapId} on continent {map.ContinentId} and floor {floorId}");
+                    this.pois[(floorId, mapId)] = await this.client.WebApi.V2.Continents[map.ContinentId].Floors[floorId].Regions[map.RegionId].Maps[mapId].Pois.AllAsync().ConfigureAwait(false);
                 }
 
                 this.apiMapDownloadBusy.Remove(mapId);
@@ -206,9 +205,7 @@ namespace Gw2MumbleLinkReader
 
                                 foreach (ContinentFloorRegionMapPoi poi in mapPois)
                                 {
-                                    double distanceX = Math.Abs(continentPosition.X - poi.Coord.X);
-                                    double distanceZ = Math.Abs(continentPosition.Z - poi.Coord.Y);
-                                    double distance = Math.Sqrt(Math.Pow(distanceX, 2) + Math.Pow(distanceZ, 2));
+                                    double distance = Math.Sqrt(Math.Pow(Math.Abs(continentPosition.X - poi.Coord.X), 2) + Math.Pow(Math.Abs(continentPosition.Z - poi.Coord.Y), 2));
                                     switch (poi.Type.Value)
                                     {
                                         case PoiType.Waypoint when distance < closestWaypointDistance:
